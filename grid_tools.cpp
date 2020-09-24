@@ -482,6 +482,62 @@ grid::ModifiedFGSMWithFallbackRegionAbstraction::operator()(grid::region const& 
     return retVal;
 }
 
+grid::RPlusFGSMAbstraction::RPlusFGSMAbstraction(
+                std::size_t n,
+                std::function<point(point const&)> const& grad,
+                point const& gran,
+                double eps) 
+    : maxPoints(n), gradient(grad), granularity(gran), rand_gen(42),
+    epsilon(eps)
+{
+}
+
+grid::abstraction_strategy_return_t 
+grid::RPlusFGSMAbstraction::operator()(grid::region const& r)
+{
+    auto centralPointSet = grid::centralPointRegionAbstraction(r);
+    if(centralPointSet.empty()) return {};
+
+    auto p = *centralPointSet.begin();
+    for(int i = 0; i < p.size(); ++i)
+    {
+        long double radius = (r[i].second - r[i].first) / 2.0;
+        std::uniform_real_distribution<> dist(-radius, radius);
+        double mod = dist(rand_gen);
+        p[i] += mod;
+    }
+    auto grad_sign = grid::sign(gradient(p));
+    grid::abstraction_strategy_return_t retVal;
+    retVal.reserve(maxPoints);
+    auto min_dimension = 
+        std::min_element(r.begin(), r.end(),
+                [](grid::region_element const& a,
+                    grid::region_element const& b)
+                { return a.second - a.first < b.second - b.first; });
+    auto min_dimension_index = std::distance(r.begin(), min_dimension);
+    auto max_radius = 
+        (min_dimension->second - min_dimension->first) / (long double)1.25;
+
+    auto e1_lowerbound = 1;
+    auto e1_upperbound = 
+        static_cast<int>(max_radius / granularity[min_dimension_index]);
+
+    for(int i = 0; i < maxPoints; ++i)
+    {
+        auto e1_dist = std::uniform_int_distribution<int>(
+                e1_lowerbound, e1_upperbound);
+
+        auto cur_eps = granularity[min_dimension_index] * static_cast<long double>(e1_dist(rand_gen));
+        auto gen_point = p;
+        for(int j = 0; j < p.size(); ++j)
+        {
+            gen_point[j] += (cur_eps * grad_sign[j]);
+        }
+        retVal.push_back(gen_point);
+    }
+    return retVal;
+}
+
 grid::HierarchicalDimensionRefinementStrategy::HierarchicalDimensionRefinementStrategy(
         grid::dimension_selection_strategy_t const& dim_select,
         unsigned divisor,

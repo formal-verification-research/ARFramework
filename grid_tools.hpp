@@ -221,6 +221,23 @@ namespace grid
         std::minstd_rand0 rand_gen;
     };
 
+    struct RPlusFGSMAbstraction
+    {
+        RPlusFGSMAbstraction(
+                std::size_t,
+                std::function<point(point const&)> const& /* gradient */,
+                point const& /* granularity */,
+                double
+        );
+        abstraction_strategy_return_t operator()(region const&);
+    private:
+        std::size_t maxPoints;
+        std::function<point(point const&)> gradient;
+        const point granularity;
+        std::minstd_rand0 rand_gen;
+        double epsilon;
+    };
+
     struct HierarchicalDimensionRefinementStrategy
     {
         HierarchicalDimensionRefinementStrategy(

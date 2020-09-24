@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
     std::string domain_range_max_str = "1.0";
     std::string modified_fgsm_dim_selection = "largest_first";
     std::string num_abstractions_str = "1000";
+    std::string abstraction_strategy_str = "modifiedFGSM";
 
     std::vector<tensorflow::Flag> flag_list = {
         tensorflow::Flag("graph", &graph, "path to protobuf graph to be executed"),
@@ -46,6 +47,7 @@ int main(int argc, char* argv[])
         tensorflow::Flag("label_proto", &label_proto, "protocol buffer of label image corresponding with initial activation"),
         tensorflow::Flag("label_layer", &label_layer, "name of label layer"),
         tensorflow::Flag("enforce_domain", &enforce_domain_str, "enforce the domain range (true, false)"),
+        tensorflow::Flag("abstraction_strategy", &abstraction_strategy_str, "abstraction strategy (modifiedFGSM, R+FGSM"),
         tensorflow::Flag("domain_range_min", &domain_range_min_str, "lower bound on domain range (default = 0.0)"),
         tensorflow::Flag("domain_range_max", &domain_range_max_str, "upper bound on domain range (default = 1.0)"),
         tensorflow::Flag("modified_fgsm_dim_selection", &modified_fgsm_dim_selection, "dimension selection strategy to use (gradient_based, intellifeature, largest_first - default)"),
@@ -242,6 +244,15 @@ int main(int argc, char* argv[])
                 grid::RandomPointRegionAbstraction(1u),
                 granularity,
                 fgsm_balance_factor);
+
+    if(abstraction_strategy_str == "R+FGSM")
+    {
+        abstraction_strategy = grid::RPlusFGSMAbstraction(
+                num_abstractions,
+                grad_func,
+                granularity,
+                0.1);
+    }
 
     grid::region orig_region(init_act_point.size());
     for(auto i = 0u; i < orig_region.size(); ++i)
