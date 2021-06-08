@@ -15,8 +15,10 @@ RUN git clone https://github.com/formal-verification-research/tensorflow.git
 WORKDIR /verapak/tensorflow
 RUN git checkout v1.15.4 && git submodule update --init --recursive
 
-RUN cd tensorflow/tensorflow && git clone https://github.com/formal-verification-research/ARFramework.git
+WORKDIR /verapak/tensorflow/tensorflow
+RUN git clone https://github.com/formal-verification-research/ARFramework.git
 
+WORKDIR /verapak/tensorflow
 RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN echo "\n" | ./configure
 
