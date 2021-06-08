@@ -15,6 +15,7 @@ load("//tensorflow:tensorflow.bzl", "tf_cc_binary")
 
 tf_cc_binary(
     name = "ARFramework_main",
+    copts = ["--std=c++14"],
     srcs = [
         "main.cpp",
         "GraphManager.cpp",
@@ -39,6 +40,7 @@ tf_cc_binary(
 
 tf_cc_binary(
     name = "ARFramework_tools_test",
+    copts = ["--std=c++14"],
     srcs = [
         "test.cpp",
         "grid_tools.cpp",
@@ -57,6 +59,7 @@ tf_cc_binary(
 
 tf_cc_binary(
     name = "ARFramework_FGSM_test",
+    copts = ["--std=c++14"],
     srcs = [
         "FGSMTest.cpp",
         "grid_tools.cpp",
