@@ -50,6 +50,8 @@ private:
     void worker_routine();
     void log_status();
 
+    void vnncomp_terminate();
+
     bool greedy_terminate;
 
 public:

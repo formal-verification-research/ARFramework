@@ -1,4 +1,6 @@
 #include "ARFramework.hpp"
+
+#include <iostream>
 #include <chrono>
 
 ARFramework::ARFramework(
@@ -132,6 +134,7 @@ void ARFramework::worker_routine()
                         refinement_strategy(selected_region);
                     auto subregion_with_adv_exp =
                         subregions.find(verification_result.second);
+                    vnncomp_terminate();
                     if(subregions.end() == subregion_with_adv_exp)
                     {
                         LOG(ERROR) 
@@ -210,6 +213,7 @@ void ARFramework::worker_routine()
                         auto found_subregion = subregions.find(pt);
                         if(subregions.end() != found_subregion)
                         {
+                            vnncomp_terminate();
                             unsafeRegionsTmp.insert(
                                     {*found_subregion, pt});
                             deleted_regions.insert(*found_subregion);
@@ -223,6 +227,7 @@ void ARFramework::worker_routine()
                             if(potentiallyUnsafeRegions.end() 
                                     != found_region)
                             {
+                                vnncomp_terminate();
                                 unsafeRegionsTmp.insert(
                                         {*found_region, pt});
                                 potentiallyUnsafeRegions.erase(
@@ -318,6 +323,12 @@ void ARFramework::worker_routine()
             }
         }
     }
+}
+
+void ARFramework::vnncomp_terminate() {
+    if(!greedy_terminate) return;
+    std::cout << "UNSAFE\n";
+    exit();
 }
 
 void ARFramework::run()
