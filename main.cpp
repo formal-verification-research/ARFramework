@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
         // parse out granularity
         std::stringstream tmp_stream(granularity_array_str);
         std::string word;
-        while(std::getline(tmp_stream, &word, ',')) {
+        while(std::getline(tmp_stream, word, ',')) {
             std::cout << "granularity element " << word << '\n';
         }
     }
