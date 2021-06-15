@@ -121,8 +121,8 @@ int main(int argc, char *argv[]) {
 
     while (std::getline(tmp_stream, word, ',')) {
       auto radius = std::stod(word);
-      tmp_orig_region[i].first = init_act_point[i] - radius;
-      tmp_orig_region[i].second = init_act_point[i] + radius;
+      tmp_orig_region[i].first = 0 - radius;
+      tmp_orig_region[i].second = 0 + radius;
       std::cout << tmp_orig_region[i].first << " " << tmp_orig_region[i].second
                 << '\n';
       ++i;
