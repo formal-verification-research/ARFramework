@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
     std::string refinement_dim_selection = "largest_first";
     std::string modified_fgsm_dim_selection = "intellifeature";
     std::string terminate_on_counterexample = "false";
+    std::string granularity_array_str = "";
 
     std::vector<tensorflow::Flag> flag_list = {
         tensorflow::Flag("graph", &graph, "path to protobuf graph to be executed - root_dir/graph"),
@@ -67,8 +68,11 @@ int main(int argc, char* argv[])
         tensorflow::Flag("output_dir", &output_dir, "directory where adversarial examples and other output should be saved"),
         tensorflow::Flag("refinement_dim_selection", &refinement_dim_selection, "strategy to use for hierarchical dimension refinement"),
         tensorflow::Flag("modified_fgsm_dim_selection", &modified_fgsm_dim_selection, "dimension selection strategy to use for modified FGSM"),
+        tensorflow::Flag("granularity_array", &granularity_array_str, "comma separated values specifying the granularity"),
         tensorflow::Flag("terminate_on_counterexample", &terminate_on_counterexample, "terminate when first counterexample is found")
     };
+
+    std::cout << "granularity_array " << granularity_array_str << "\n";
 
     std::string usage = tensorflow::Flags::Usage(argv[0], flag_list);
 
