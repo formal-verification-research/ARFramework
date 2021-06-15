@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  grid::region orig_region(4);
+  grid::region tmp_orig_region(4);
   if (verification_radius_array_str != "") {
     std::stringstream tmp_stream(verification_radius_array_str);
     std::string word;
@@ -121,12 +121,13 @@ int main(int argc, char *argv[]) {
 
     while (std::getline(tmp_stream, word, ',')) {
       auto radius = std::stod(word);
-      orig_region[i].first = init_act_point[i] - radius;
-      orig_region[i].second = init_act_point[i] + radius;
-      std::cout << orig_region[i].first << " " << orig_region[i].second << '\n';
+      tmp_orig_region[i].first = init_act_point[i] - radius;
+      tmp_orig_region[i].second = init_act_point[i] + radius;
+      std::cout << tmp_orig_region[i].first << " " << tmp_orig_region[i].second
+                << '\n';
       ++i;
     }
-    if (i != orig_region.size()) {
+    if (i != tmp_orig_region.size()) {
       LOG(ERROR) << "wrong number of radius elements provided";
       exit(1);
     }
