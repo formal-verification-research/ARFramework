@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
   std::string terminate_on_counterexample = "false";
   std::string granularity_array_str = "";
   std::string verification_radius_array_str = "";
+  std::string domain_range_array_str = "";
 
   std::vector<tensorflow::Flag> flag_list = {
       tensorflow::Flag(
@@ -97,6 +98,9 @@ int main(int argc, char *argv[]) {
       tensorflow::Flag(
           "verification_radius_array", &verification_radius_array_str,
           "comma separated values specifying the verification radius"),
+      tensorflow::Flag("domain_range_array", &domain_range_array_str,
+                       "comma separated values specifying the domain range on "
+                       "each dimension (;) separates each pair"),
       tensorflow::Flag("terminate_on_counterexample",
                        &terminate_on_counterexample,
                        "terminate when first counterexample is found")};
@@ -107,6 +111,25 @@ int main(int argc, char *argv[]) {
   if (!parse_result) {
     LOG(ERROR) << usage;
     exit(1);
+  }
+
+  grid::region orig_region(4);
+  if (verification_radius_array_str != "") {
+    std::stringstream tmp_stream(verification_radius_array_str);
+    std::string word;
+    auto i = 0u;
+
+    while (std::getline(tmp_stream, word, ',')) {
+      auto radius = std::stod(word);
+      orig_region[i].first = init_act_point[i] - radius;
+      orig_region[i].second = init_act_point[i] + radius;
+      std::cout << orig_region[i].first << " " << orig_region[i].second << '\n';
+      ++i;
+    }
+    if (i != orig_region.size()) {
+      LOG(ERROR) << "wrong number of radius elements provided";
+      exit(1);
+    }
   }
 
   tensorflow::port::InitMain(argv[0], &argc, &argv);
@@ -409,9 +432,29 @@ int main(int argc, char *argv[]) {
   }
 
   grid::region domain_range(orig_region.size());
-  for (auto i = 0u; i < domain_range.size(); ++i) {
-    domain_range[i].first = 0;
-    domain_range[i].second = 1;
+  if (domain_range_array_str != "") {
+    std::stringstream tmp_stream(domain_range_array_str);
+    std::string range_pair;
+    auto i = 0u;
+    while (std::getline(tmp_stream, range_pair, ';')) {
+      std::stringstream pair_stream(range_pair);
+      std::string lower_str;
+      std::string upper_str;
+      std::getline(pair_stream, lower_str, ',');
+      std::getline(pair_stream, upper_str);
+      domain_range[i].first = std::stod(lower_str);
+      domain_range[i].second = std::stod(upper_str);
+      ++i;
+    }
+    if (i != orig_region.size()) {
+      LOG(ERROR) << "did not provide enough values for the domain range";
+      exit(1);
+    }
+  } else {
+    for (auto i = 0u; i < domain_range.size(); ++i) {
+      domain_range[i].first = 0;
+      domain_range[i].second = 1;
+    }
   }
 
   orig_region = grid::snapToDomainRange(orig_region, domain_range);
