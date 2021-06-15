@@ -113,30 +113,6 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  grid::region tmp_domain_range(4);
-  if (domain_range_array_str != "") {
-    std::stringstream tmp_stream(domain_range_array_str);
-    std::string range_pair;
-    auto i = 0u;
-    while (std::getline(tmp_stream, range_pair, ';')) {
-      std::stringstream pair_stream(range_pair);
-      std::string lower_str;
-      std::string upper_str;
-      std::getline(pair_stream, lower_str, ',');
-      std::getline(pair_stream, upper_str);
-      auto lower = std::stod(lower_str);
-      auto upper = std::stod(upper_str);
-      tmp_domain_range[i].first = std::stod(lower_str);
-      tmp_domain_range[i].second = std::stod(upper_str);
-      std::cout << "upper: " << upper << " | lower: " << lower << "\n";
-      ++i;
-    }
-    if (i != 4) {
-      LOG(ERROR) << "did not provide enough values for the domain range";
-      exit(1);
-    }
-  }
-
   tensorflow::port::InitMain(argv[0], &argc, &argv);
   if (argc > 1) {
     LOG(ERROR) << "Unknown argument " << argv[1] << "\n" << usage;
@@ -447,8 +423,15 @@ int main(int argc, char *argv[]) {
       std::string upper_str;
       std::getline(pair_stream, lower_str, ',');
       std::getline(pair_stream, upper_str);
-      domain_range[i].first = std::stod(lower_str);
-      domain_range[i].second = std::stod(upper_str);
+      auto lower = std::stod(lower_str);
+      auto upper = std::stod(upper_str);
+      if (lower > upper) {
+        LOG(ERROR) << "lower bound (" << lower
+                   << ") is greater than upper bound (" << upper << ")";
+        exit(1);
+      }
+      domain_range[i].first = lower;
+      domain_range[i].second = upper;
       ++i;
     }
     if (i != orig_region.size()) {
