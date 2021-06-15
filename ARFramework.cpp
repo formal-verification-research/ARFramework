@@ -10,7 +10,8 @@ ARFramework::ARFramework(
         std::function<bool(grid::point const&)> const& safety_pred,
         grid::verification_engine_type_t const& verif_engine, 
         grid::region_abstraction_strategy_t const& abs_strat, 
-        grid::region_refinement_strategy_t const& ref_strat)
+        grid::region_refinement_strategy_t const& ref_strat,
+        bool greedy_term)
     : 
         potentiallyUnsafeRegions(),
         pur_mutex(),
@@ -31,7 +32,8 @@ ARFramework::ARFramework(
         safety_predicate(safety_pred),
         logging_thread_id(),
         log_thread_set(ATOMIC_FLAG_INIT),
-        orig_region()
+        orig_region(),
+        greedy_terminate(greedy_term)
 {
     if(!gm.ok()) exit(1);
     orig_region = grid::snapToDomainRange(orig_r, domain_range);

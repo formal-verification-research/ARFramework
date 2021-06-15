@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
     std::string output_dir = "adv_examples";
     std::string refinement_dim_selection = "largest_first";
     std::string modified_fgsm_dim_selection = "intellifeature";
+    std::string terminate_on_counterexample = "false";
 
     std::vector<tensorflow::Flag> flag_list = {
         tensorflow::Flag("graph", &graph, "path to protobuf graph to be executed - root_dir/graph"),
@@ -65,7 +66,8 @@ int main(int argc, char* argv[])
         tensorflow::Flag("num_abstractions", &num_abstractions_str, "number of points to use as abstractions for each region"),
         tensorflow::Flag("output_dir", &output_dir, "directory where adversarial examples and other output should be saved"),
         tensorflow::Flag("refinement_dim_selection", &refinement_dim_selection, "strategy to use for hierarchical dimension refinement"),
-        tensorflow::Flag("modified_fgsm_dim_selection", &modified_fgsm_dim_selection, "dimension selection strategy to use for modified FGSM")
+        tensorflow::Flag("modified_fgsm_dim_selection", &modified_fgsm_dim_selection, "dimension selection strategy to use for modified FGSM"),
+        tensorflow::Flag("terminate_on_counterexample", &terminate_on_counterexample, "terminate when first counterexample is found")
     };
 
     std::string usage = tensorflow::Flags::Usage(argv[0], flag_list);
@@ -110,6 +112,7 @@ int main(int argc, char* argv[])
         tensorflow::io::JoinPath(root_dir, initial_activation);
     auto init_act_tensor_status_pair = 
         GraphManager::ReadBinaryTensorProto(initial_activation_path);
+    auto greedy_termination = terminate_on_counterexample == "true";
     if(!init_act_tensor_status_pair.first)
     {
         LOG(ERROR) 
@@ -192,6 +195,7 @@ int main(int argc, char* argv[])
         }
     }
 
+    /*
     for(auto i = 0u; i < 20u; ++i)
     {
         auto tmp = 
@@ -210,6 +214,7 @@ int main(int argc, char* argv[])
         if(tmp_class != orig_class)
             std::cout << tmp_class << " " << orig_class << "\n";
     }
+    */
 
     std::cout << "Granularity: " << granularityVal << "\n";
     std::cout << "Original class: " << orig_class << "\n";
@@ -421,8 +426,9 @@ int main(int argc, char* argv[])
             isPointSafe,
             verification_engine,
             abstraction_strategy,
-            refinement_strategy
-            );
+            refinement_strategy,
+            greedy_termination);
+
     shutdown_callback = [&](){ arframework.join(); };
     auto handle = signal(SIGINT, shutdown_handler);
     std::vector<std::thread> thread_pool;
