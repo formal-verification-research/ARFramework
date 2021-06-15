@@ -50,6 +50,10 @@ private:
     void worker_routine();
     void log_status();
 
+    void vnncomp_terminate();
+
+    bool greedy_terminate;
+
 public:
     ARFramework(
             GraphManager&,
@@ -66,7 +70,8 @@ public:
                         grid::randomDimSelection,
                         2u,
                         5u
-                    )
+                    ),
+            bool = false
             );
 
     void set_verification_engine(

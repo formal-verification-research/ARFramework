@@ -1,4 +1,6 @@
 #include "ARFramework.hpp"
+
+#include <iostream>
 #include <chrono>
 
 ARFramework::ARFramework(
@@ -10,7 +12,8 @@ ARFramework::ARFramework(
         std::function<bool(grid::point const&)> const& safety_pred,
         grid::verification_engine_type_t const& verif_engine, 
         grid::region_abstraction_strategy_t const& abs_strat, 
-        grid::region_refinement_strategy_t const& ref_strat)
+        grid::region_refinement_strategy_t const& ref_strat,
+        bool greedy_term)
     : 
         potentiallyUnsafeRegions(),
         pur_mutex(),
@@ -31,7 +34,8 @@ ARFramework::ARFramework(
         safety_predicate(safety_pred),
         logging_thread_id(),
         log_thread_set(ATOMIC_FLAG_INIT),
-        orig_region()
+        orig_region(),
+        greedy_terminate(greedy_term)
 {
     if(!gm.ok()) exit(1);
     orig_region = grid::snapToDomainRange(orig_r, domain_range);
@@ -130,6 +134,7 @@ void ARFramework::worker_routine()
                         refinement_strategy(selected_region);
                     auto subregion_with_adv_exp =
                         subregions.find(verification_result.second);
+                    vnncomp_terminate();
                     if(subregions.end() == subregion_with_adv_exp)
                     {
                         LOG(ERROR) 
@@ -208,6 +213,7 @@ void ARFramework::worker_routine()
                         auto found_subregion = subregions.find(pt);
                         if(subregions.end() != found_subregion)
                         {
+                            vnncomp_terminate();
                             unsafeRegionsTmp.insert(
                                     {*found_subregion, pt});
                             deleted_regions.insert(*found_subregion);
@@ -221,6 +227,7 @@ void ARFramework::worker_routine()
                             if(potentiallyUnsafeRegions.end() 
                                     != found_region)
                             {
+                                vnncomp_terminate();
                                 unsafeRegionsTmp.insert(
                                         {*found_region, pt});
                                 potentiallyUnsafeRegions.erase(
@@ -316,6 +323,12 @@ void ARFramework::worker_routine()
             }
         }
     }
+}
+
+void ARFramework::vnncomp_terminate() {
+    if(!greedy_terminate) return;
+    std::cout << "UNSAFE\n";
+    exit(3);
 }
 
 void ARFramework::run()
