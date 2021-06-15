@@ -72,11 +72,11 @@ int main(int argc, char* argv[])
         tensorflow::Flag("terminate_on_counterexample", &terminate_on_counterexample, "terminate when first counterexample is found")
     };
 
-    std::cout << "granularity_array " << granularity_array_str << "\n";
 
     std::string usage = tensorflow::Flags::Usage(argv[0], flag_list);
 
     const bool parse_result = tensorflow::Flags::Parse(&argc, argv, flag_list);
+    std::cout << "granularity_array " << granularity_array_str << "\n";
     if (!parse_result) 
     {
         LOG(ERROR) << usage;
