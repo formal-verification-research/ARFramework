@@ -76,11 +76,18 @@ int main(int argc, char* argv[])
     std::string usage = tensorflow::Flags::Usage(argv[0], flag_list);
 
     const bool parse_result = tensorflow::Flags::Parse(&argc, argv, flag_list);
-    std::cout << "granularity_array " << granularity_array_str << "\n";
     if (!parse_result) 
     {
         LOG(ERROR) << usage;
         return -1;
+    }
+    if(granularity_array_str != "") {
+        // parse out granularity
+        std::stringstream tmp_stream(granularity_array_str);
+        std::string word;
+        while(std::getline(tmp_stream, &word, ',')) {
+            std::cout << "granularity element " << word << '\n';
+        }
     }
 
     tensorflow::port::InitMain(argv[0], &argc, &argv);
