@@ -328,7 +328,7 @@ void ARFramework::worker_routine()
 void ARFramework::vnncomp_terminate() {
     if(!greedy_terminate) return;
     std::cout << "UNSAFE\n";
-    exit();
+    exit(3);
 }
 
 void ARFramework::run()
