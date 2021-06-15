@@ -113,22 +113,26 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  grid::region tmp_orig_region(4);
-  if (verification_radius_array_str != "") {
-    std::stringstream tmp_stream(verification_radius_array_str);
-    std::string word;
+  grid::region tmp_domain_range(4);
+  if (domain_range_array_str != "") {
+    std::stringstream tmp_stream(domain_range_array_str);
+    std::string range_pair;
     auto i = 0u;
-
-    while (std::getline(tmp_stream, word, ',')) {
-      auto radius = std::stod(word);
-      tmp_orig_region[i].first = 0 - radius;
-      tmp_orig_region[i].second = 0 + radius;
-      std::cout << tmp_orig_region[i].first << " " << tmp_orig_region[i].second
-                << '\n';
+    while (std::getline(tmp_stream, range_pair, ';')) {
+      std::stringstream pair_stream(range_pair);
+      std::string lower_str;
+      std::string upper_str;
+      std::getline(pair_stream, lower_str, ',');
+      std::getline(pair_stream, upper_str);
+      auto lower = std::stod(lower_str);
+      auto upper = std::stod(upper_str);
+      tmp_domain_range[i].first = std::stod(lower_str);
+      tmp_domain_range[i].second = std::stod(upper_str);
+      std::cout << "upper: " << upper << " | lower: " << lower << "\n";
       ++i;
     }
-    if (i != tmp_orig_region.size()) {
-      LOG(ERROR) << "wrong number of radius elements provided";
+    if (i != 4) {
+      LOG(ERROR) << "did not provide enough values for the domain range";
       exit(1);
     }
   }
