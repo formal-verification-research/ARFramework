@@ -203,34 +203,15 @@ int main(int argc, char *argv[]) {
     }
     auto label_tensor = label_tensor_pair.second;
     auto label_class = graph_tool::getClassOfClassificationTensor(label_tensor);
+    /* center point may be an adversarial example
     if (label_class != orig_class) {
       LOG(ERROR) << "Label and orig_class do not agree\nlabel class: "
                  << label_class
                  << " classification of initial input: " << orig_class;
       exit(1);
     }
+    */
   }
-
-  /*
-  for(auto i = 0u; i < 20u; ++i)
-  {
-      auto tmp =
-          gm.feedThroughModel(
-                  retFeedDict,
-                  &graph_tool::parseGraphOutToVector,
-                  {output_layer});
-      if(!gm.ok())
-      {
-          LOG(ERROR) << "Error while feeding through model";
-          exit(1);
-      }
-      unsigned tmp_class =
-          graph_tool::getClassOfClassificationVector(tmp);
-
-      if(tmp_class != orig_class)
-          std::cout << tmp_class << " " << orig_class << "\n";
-  }
-  */
 
   std::cout << "Original class: " << orig_class << "\n";
   std::cout << "Input shape: ";
