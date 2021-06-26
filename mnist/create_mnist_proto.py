@@ -31,6 +31,17 @@ y_train = tf.keras.utils.to_categorical(y_train, 10)
 x_init = x_train[args.index:args.index+1]
 y_init = y_train[args.index:args.index+1]
 
+print(x_init.shape)
+print(y_init.shape, y_init, y_init.dtype)
+
+for i in range(10):
+    b = np.zeros_like(y_init)
+    b[0][i] = 1
+    file_name_label = 'mnist_label_{}.pb'.format(i)
+    y_proto = tf.make_tensor_proto(b, dtype=b.dtype, shape=b.shape)
+    with open(file_name_label, 'wb') as f:
+        f.write(y_proto.SerializeToString())
+
 file_name_x = 'mnist_{}.pb'.format(args.index) 
 file_name_y = 'mnist_{}_label.pb'.format(args.index) 
 
