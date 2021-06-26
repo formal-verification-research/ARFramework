@@ -9,6 +9,14 @@ img_rows = 32
 img_cols = 32
 num_classes = 10
 
+for i in range(num_classes):
+    d = np.zeros((1,10), dtype=np.float32)
+    d[0][i] = 1
+    file_name = 'cifar10_label_{}.pb'.format(i)
+    proto = tf.make_tensor_proto(d, dtype=d.dtype, shape=d.shape)
+    with open(file_name, 'wb') as f:
+        f.write(proto.SerializeToString())
+
 x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 3)
 input_shape = (img_rows, img_cols, 3)
 
